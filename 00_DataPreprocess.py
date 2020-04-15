@@ -5,6 +5,9 @@ import os
 from scipy.optimize import curve_fit
 import scipy
 #%%
+
+
+#%%
 DATA = pd.read_csv('./coronavirusdataset/Time.csv')\
 # Columns : date, time, test, negative, confirmed, released, deceased 
 
