@@ -6,7 +6,7 @@ import tensorflow as tf
 from tensorflow.keras import layers, Sequential
 from tensorflow.keras import Input
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import LSTM
+from tensorflow.keras.layers import LSTM, TimeDistributed, Dense, Activation
 from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
 from tensorflow.keras import optimizers
 from sklearn.preprocessing import StandardScaler
@@ -72,9 +72,6 @@ model_c.add(Activation("linear"))
 ADAM = optimizers.Adam()
 model_c.compile(loss='mean_squared_error',optimizer=ADAM)
 
-from tensorflow.python.client import device_lib
-
-print(device_lib.list_local_devices())
 
 
 

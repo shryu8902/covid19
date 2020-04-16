@@ -4,11 +4,35 @@ import pandas as pd
 import os
 from scipy.optimize import curve_fit
 import scipy
+import matplotlib
+from matplotlib import pyplot as plt
 #%%
-DATA = pd.read_csv('./daily.csv')
+import pickle
+with open('US_pop.pkl', 'rb') as f:
+    US_pop = pickle.load(f)
+#%%
+DATA = pd.read_csv('./daily.csv') ## 미국 주별 데이터
 DATA.date = pd.to_datetime(DATA.date, format = '%Y%m%d')
 DATA=DATA.reindex(index=DATA.index[::-1])
+DATA_US = pd.read_csv('./us-daily 0416.csv')
+DATA_US.date = pd.to_datetime(DATA_US.date, format = '%Y%m%d')
+DATA_state={}
+DATA_state['US']=DATA_US.reindex(index=DATA_US.index[::-1])
+for i in list(set(DATA.state))+['US']:
+    DATA_state[i]=DATA[DATA.state==i].copy()
+    DATA_state[i]=DATA_state[i].reset_index(drop=True).drop_duplicates(['date'])
+    DATA_state[i]['C_']=abs(DATA_state[i].positiveIncrease)/US_pop[i]*100
+    DATA_state[i]['T_']=abs(DATA_state[i].totalTestResultsIncrease)/US_pop[i]*100
+    DATA_state[i]['CC_'] = DATA_state[i].positive/US_pop[i]*100
+    DATA_state[i]['TT_'] = DATA_state[i].totalTestResults/US_pop[i]*100
 
+#%%
+for i in list(set(DATA.state)):
+    fig, ax = plt.subplots()
+    DATA_state[i].CC_.plot(title=str(i))
+    DATA_state[i].TT_.plot.line(ax=ax)
+    plt.savefig('./'+str(i)+'_cum.png')
+    plt.close()
 #%%
 for i in list(set(DATA.state)):
     print(i)
@@ -25,6 +49,12 @@ for i in list(set(DATA.state)):
 for i in list(US_pop.keys()):
     if not i in set(DATA.state):
         print(i)
+#%% save US population data
+import pickle
+f = open("US_pop.pkl","wb")
+pickle.dump(US_pop,f)
+f.close()
+#%%
 US_pop = {'US': 327e6,
     'AS':55216,#America Samoa
     'GU':168461,#Guam
@@ -82,6 +112,7 @@ US_pop = {'US': 327e6,
     'DC':720687,
     'VT':628061,
     'WY':567025}
+
 Population = {
     'China-': 1386e6,
     'US-': 327e6,
