@@ -151,6 +151,6 @@ grid_result = grid.fit(X_all_aug,Y_C_all_aug)
 #%%
 import pickle
 f = open("GridSearch2.pkl","wb")
-pickle.dump(grid_result,f)
+pickle.dump([grid_result.best_params_, grid_result.cv_results_],f)
 f.close()
 
