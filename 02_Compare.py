@@ -27,7 +27,7 @@ os.chdir(os.path.dirname(os.path.realpath(__file__)))
 import pickle
 with open('US_pop.pkl', 'rb') as f:
     US_pop = pickle.load(f)
-with open('GridSearch.pkl', 'rb') as f:
+with open('GridSearch2.pkl', 'rb') as f:
     grid_result = pickle.load(f)
 
 #%%
@@ -162,10 +162,10 @@ CHECKPOINT_callback_T = ModelCheckpoint(filepath = MODEL_CHECKPOINT_DIR+'/best_m
                                       verbose = 1, save_best_only = True, mode = 'min') 
 #%%
 #%% 모델 학습
-history_c = model_c.fit(X_all_aug, Y_C_all_aug, epochs = 10, batch_size = 1024,
+history_c = model_c.fit(X_all_aug, Y_C_all_aug, epochs = 60, batch_size = 1024,
                     shuffle = True, validation_split = 0.2, verbose = 1,
                     callbacks = [CHECKPOINT_callback_C, reduce_lr] )
-history_t = model_t.fit(X_all_aug, Y_T_all_aug, epochs = 10, batch_size = 1024,
+history_t = model_t.fit(X_all_aug, Y_T_all_aug, epochs = 60, batch_size = 1024,
                     shuffle = True, validation_split = 0.2, verbose = 1,
                     callbacks = [CHECKPOINT_callback_T, reduce_lr] )
 #%%

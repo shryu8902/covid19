@@ -97,10 +97,15 @@ val_index = [[-1]*(len(X_state[STATE])-5)+[0]*5 for STATE in state_list]
 val_index = np.array([x for indexes in val_index for x in indexes]) 
 
 X_all_aug, Y_C_all_aug = normal_augmentation(X_all, Y_C_all,seed = 1, times = 20)
+_, Y_T_all_aug = normal_augmentation(X_all, Y_T_all,seed = 1, times = 20)
 val_index_aug = np.tile(val_index,21)
 
-
-
+# X_aug = X_all_aug[val_index_aug==-1]
+# Y_C_aug = Y_C_all_aug[val_index_aug==-1]
+# Y_T_aug = Y_T_all_aug[val_index_aug==-1]
+# X_val = X_all[val_index==0]
+# Y_C_val = Y_C_all[val_index==0]
+# Y_T_val = Y_T_all[val_index==0]
 #%%
 def create_model(optimizer='RMSprop', init='glorot_uniform', lr=0.001, dropout=0.2, epoch = 10, time_len = 10,n_hidden=10,n_layer =1,loss='mean_squared_error'):
     K.clear_session()
@@ -114,18 +119,40 @@ def create_model(optimizer='RMSprop', init='glorot_uniform', lr=0.001, dropout=0
             model.add(LSTM(n_hidden, dropout=dropout, kernel_initializer = init, return_sequences=True))
     model.add(Dense(1))
     model.add(Activation("relu"))
-    if optimizer=='RMSprop':
-        opt = optimizers.RMSprop(lr=lr)
-    elif optimizer=='Adam':
-        opt = optimizers.Adam(lr=lr)
-    else:
-        opt = optimizers.SGD(lr=lr)
-    model.compile(loss=loss,optimizer=opt)
+    # if optimizer=='RMSprop':
+    #     opt = optimizers.RMSprop(lr=lr)
+    # elif optimizer=='Adam':
+    #     opt = optimizers.Adam(lr=lr)
+    # else:
+    #     opt = optimizers.SGD(lr=lr)
+    model.compile(loss=loss,optimizer=optimizer)
     return model
 #%%
 from tensorflow.keras.wrappers.scikit_learn import KerasRegressor
 
 model_c = KerasRegressor(build_fn=create_model,shuffle=True,verbose=0)
+#Param_grid_1 :gridsearch2.pkl
+# param_grid = {
+#     'optimizer':['RMSprop','Adam','SGD'],
+#     'loss':['mean_squared_error','mean_squared_logarithmic_error'],
+#     'n_layer':[1,2],
+#     'dropout':[0.1, 0.3, 0.5],
+#     'epochs':[10,20,40,60],
+#     'n_hidden':[10,50,100,200],
+#     'batch_size':[256,512,1024],
+#     'lr':[0.01,0.001,0.0001],}
+#
+#Param_grid_2 :gridsearch3.pkl
+# param_grid = {
+#     'optimizer':['RMSprop'],
+#     'loss':['mean_squared_logarithmic_error'],
+#     'n_layer':[2],
+#     'dropout':[0.1, 0.5],
+#     'epochs':[60,100,1000],
+#     'n_hidden':[50],
+#     'batch_size':[256],
+#     'lr':[0.01],}
+#PAram_grid_3 : gridsearch4.pkl
 param_grid = {
     'optimizer':['RMSprop','Adam','SGD'],
     'loss':['mean_squared_error','mean_squared_logarithmic_error'],
@@ -133,8 +160,8 @@ param_grid = {
     'dropout':[0.1, 0.3, 0.5],
     'epochs':[10,20,40,60],
     'n_hidden':[10,50,100,200],
-    'batch_size':[256,512,1024],
-    'lr':[0.01,0.001,0.0001],}
+    }
+
 # param_grid = {
 #    'optimizer':['Adam'],
    
@@ -146,11 +173,24 @@ param_grid = {
 #%%
 from sklearn.model_selection import GridSearchCV, PredefinedSplit
 ps = PredefinedSplit(test_fold=val_index_aug)
-grid = GridSearchCV(estimator=model_c,cv=ps,param_grid=param_grid,scoring='neg_mean_absolute_error', n_jobs=1,return_train_score=True,verbose=2)
+grid = GridSearchCV(estimator=model_c,cv=ps,param_grid=param_grid,scoring='neg_mean_absolute_error', n_jobs=1,return_train_score=True,verbose=1)
 grid_result = grid.fit(X_all_aug,Y_C_all_aug)
+
 #%%
 import pickle
-f = open("GridSearch2.pkl","wb")
-pickle.dump([grid_result.best_params_, grid_result.cv_results_],f)
+f = open("GridSearch4.pkl","wb")
+pickle.dump([grid_result.best_params_, grid_result.cv_results_], f)
 f.close()
 
+#%%
+# model_c = create_model(optimizer='RMSprop',lr=0.001,dropout=0.1,n_hidden=50,n_layer=2,loss='mean_squared_logarithmic_error')
+# history_c2 = model_c.fit(X_aug, Y_C_aug, epochs = 60, batch_size = 256,
+#                     shuffle = True, validation_data = (X_val,Y_C_val) , verbose = 1)
+#                     # callbacks = [reduce_lr] )
+# history_t = model_t.fit(X_all_aug, Y_T_all_aug, epochs = 10, batch_size = 1024,
+
+#                     shuffle = True, validation_data = (X_val, Y_T_val), verbose = 1)
+#                     # validation_split = 0.2, verbose = 1)
+#                     # callbacks = [CHECKPOINT_callback_T, reduce_lr] )
+
+# %%
