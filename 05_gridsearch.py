@@ -154,12 +154,13 @@ model_c = KerasRegressor(build_fn=create_model,shuffle=True,verbose=0)
 #     'lr':[0.01],}
 #PAram_grid_3 : gridsearch4.pkl
 param_grid = {
-    'optimizer':['RMSprop','Adam','SGD'],
-    'loss':['mean_squared_error','mean_squared_logarithmic_error'],
+    'optimizer':['RMSprop'],
+    'loss':['mean_squared_logarithmic_error'],
     'n_layer':[1,2],
-    'dropout':[0.1, 0.3, 0.5],
+    'dropout':[0.1, 0.2, 0.3, 0.5],
     'epochs':[10,20,40,60],
-    'n_hidden':[10,50,100,200],
+    'n_hidden':[10,50,100],
+    'batch_size':[256]
     }
 
 # param_grid = {
@@ -173,7 +174,7 @@ param_grid = {
 #%%
 from sklearn.model_selection import GridSearchCV, PredefinedSplit
 ps = PredefinedSplit(test_fold=val_index_aug)
-grid = GridSearchCV(estimator=model_c,cv=ps,param_grid=param_grid,scoring='neg_mean_absolute_error', n_jobs=1,return_train_score=True,verbose=1)
+grid = GridSearchCV(estimator=model_c,cv=ps,param_grid=param_grid,scoring='neg_mean_absolute_error', n_jobs=1,return_train_score=True,verbose=2)
 grid_result = grid.fit(X_all_aug,Y_C_all_aug)
 
 #%%
