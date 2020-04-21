@@ -15,6 +15,7 @@ os.chdir(os.path.dirname(os.path.realpath(__file__)))
 import pickle
 with open('US_pop.pkl', 'rb') as f:
     US_pop = pickle.load(f)
+
 #%% 데이터 불러오기
 # C_ : 일별 신규 코로나 확진자
 # T_ : 일별 신규 검사자
@@ -44,11 +45,15 @@ CORE_DATA['CC_'] = CORE_DATA.positive.values/CORE_DATA.Pop.values*100
 CORE_DATA['TT_'] = CORE_DATA.totalTestResults.values/CORE_DATA.Pop.values*100
 
 C_scaler = MinMaxScaler()
-T_scaler = MinMaxScaler()
-temp = C_scaler.fit_transform(CORE_DATA[['CC_','TT_']])
-CORE_DATA['CC_s'] = C_scaler.fit_transform(CORE_DATA[['CC_']])
-CORE_DATA['TT_s'] = T_scaler.fit_transform(CORE_DATA[['TT_']])
 
+T_scaler = MinMaxScaler()
+CC_scaler = MinMaxScaler()
+TT_scaler = MinMaxScaler()
+CORE_DATA['CC_s'] = CC_scaler.fit_transform(CORE_DATA[['CC_']])
+CORE_DATA['TT_s'] = TT_scaler.fit_transform(CORE_DATA[['TT_']])
+CORE_DATA['C_s'] = C_scaler.fit_transform(CORE_DATA[['C_']])
+CORE_DATA['T_s'] = T_scaler.fit_transform(CORE_DATA[['T_']])
+CORE_DATA['CoverT'] = pd.Series(CORE_DATA.C_.values/CORE_DATA.T_.values).fillna(0)
 state_list = list(set(DATA.state))
 state_list.sort()
 state_list=state_list+['US']
@@ -63,6 +68,15 @@ CORE_DATA.pivot('date','state','T_').plot(legend=False, title='Daily_Tests')
 plt.savefig('./T.png',bbox_inches = 'tight')
 
 #%%
+for STATE in state_list:
+    fig, ax = plt.subplots()
+    CORE_DATA[CORE_DATA.state==STATE].plot(x='date',y='CoverT',ax=ax)
+    plt.savefig('./CoverT/'+STATE+'.png',bbox_inches = 'tight')
+    plt.close()
+#%%
+CORE_DATA.pivot('date','state','CoverT').plot(legend=False,ylim=[0,2])
+#%%
+
 CORE_DATA[CORE_DATA.state=='AK'][['C_','T_']].plot()
 
 # %%

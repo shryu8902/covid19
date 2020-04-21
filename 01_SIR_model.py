@@ -1,9 +1,20 @@
 #%%
-## SIR 모형은 3개의 비선형 ODE로 구성
-import matplotlib.pyplot as plt
+# AR example
 import numpy as np
-from scipy.integrate import solve_ivp
-from matplotlib.ticker import MaxNLocator
+import pandas as pd
+import os
+from sklearn.preprocessing import MinMaxScaler
+from statsmodels.tsa.ar_model import AR
+from random import random
+#%%
+# contrived dataset
+data = [x + random() for x in range(1, 100)]
+# fit model
+model = AR(data)
+model_fit = model.fit()
+# make prediction
+yhat = model_fit.predict(len(data), len(data))
+print(yhat)
 
 #%%
 data = [1, 3, 6, 25, 73, 222, 294]
