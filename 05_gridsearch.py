@@ -179,7 +179,7 @@ grid_result = grid.fit(X_all_aug,Y_C_all_aug)
 
 #%%
 import pickle
-f = open("GridSearch4.pkl","wb")
+f = open("GridSearch6.pkl","wb")
 pickle.dump([grid_result.best_params_, grid_result.cv_results_], f)
 f.close()
 

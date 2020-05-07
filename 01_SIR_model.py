@@ -5,7 +5,7 @@ import pandas as pd
 import os
 from sklearn.preprocessing import MinMaxScaler
 from statsmodels.tsa.ar_model import AR
-from random import random
+from random import random   
 #%%
 # contrived dataset
 data = [x + random() for x in range(1, 100)]
